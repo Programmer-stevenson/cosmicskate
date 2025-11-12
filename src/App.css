@@ -311,7 +311,7 @@ body {
   }
 
   .mobile-nav-logo {
-    margin-top: 3px;
+    margin-top: 10px;
     margin-bottom: 3rem;
     animation: bounce-glow 2s ease-in-out infinite;
   }
@@ -340,7 +340,7 @@ body {
   }
 
   .mobile-nav-link {
-    padding: 1.5rem 2.5rem;
+    padding: 1rem 2rem;
     text-align: center;
     color: white;
     text-decoration: none;
@@ -353,8 +353,8 @@ body {
     transition: all 0.3s;
     box-shadow: 0 0 15px rgba(0, 212, 255, 0.3),
                 0 4px 10px rgba(0, 0, 0, 0.5);
-    min-width: 300px;
-    width: 300px;
+    min-width: 250px;
+    width: 250px;
   }
 
   .mobile-nav-link:hover {
@@ -368,9 +368,9 @@ body {
 
   .mobile-cta {
     margin-top: 2rem;
-    min-width: 300px;
-    width: 300px;
-    padding: 1.5rem 2.5rem !important;
+    min-width: 250px;
+    width: 250px;
+    padding: 1rem 2rem !important;
     font-size: 1.2rem !important;
   }
 
