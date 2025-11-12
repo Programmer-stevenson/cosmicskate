@@ -57,6 +57,9 @@ body {
   min-height: 100vh;
   color: white;
   background-color: transparent;
+  max-width: 100vw;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* ==================== LOADING SCREEN ==================== */
@@ -212,25 +215,33 @@ body {
   display: none;
   flex-direction: column;
   gap: 6px;
-  background: transparent;
-  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--stellar-cyan);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
   z-index: 1001;
+  min-width: 48px;
+  min-height: 48px;
+  justify-content: center;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mobile-menu-button span {
   width: 28px;
   height: 3px;
-  background: white;
+  background: var(--stellar-cyan);
   border-radius: 2px;
   transition: all 0.3s;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+  display: block;
 }
 
-.mobile-menu-button:hover span {
-  background: var(--stellar-cyan);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+.mobile-menu-button:active span {
+  background: var(--nebula-aqua);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 1);
 }
 
 .mobile-nav-menu {
@@ -239,6 +250,20 @@ body {
 
 /* Mobile Navigation */
 @media (max-width: 968px) {
+  .navbar {
+    padding: 1rem;
+    width: 100%;
+    max-width: 100vw;
+    left: 0;
+    right: 0;
+  }
+
+  .nav-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+
   .desktop-nav {
     display: none !important;
   }
@@ -256,6 +281,7 @@ body {
     right: 0;
     bottom: 0;
     width: 100vw;
+    max-width: 100vw;
     height: 100vh;
     z-index: 998;
     overflow: hidden;
@@ -353,8 +379,9 @@ body {
     transition: all 0.3s;
     box-shadow: 0 0 15px rgba(0, 212, 255, 0.3),
                 0 4px 10px rgba(0, 0, 0, 0.5);
-    min-width: 300px;
-    width: 300px;
+    min-width: min(300px, 90vw);
+    width: min(300px, 90vw);
+    max-width: 90vw;
   }
 
   .mobile-nav-link:hover {
@@ -368,8 +395,9 @@ body {
 
   .mobile-cta {
     margin-top: 2rem;
-    min-width: 300px;
-    width: 300px;
+    min-width: min(300px, 90vw);
+    width: min(300px, 90vw);
+    max-width: 90vw;
     padding: 1.5rem 2.5rem !important;
     font-size: 1.2rem !important;
   }
@@ -1353,6 +1381,44 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 600;
+}
+
+/* ==================== MOBILE WIDTH CONSTRAINTS ==================== */
+@media (max-width: 968px) {
+  * {
+    max-width: 100%;
+  }
+
+  body,
+  .app,
+  .hero-section,
+  .products-section,
+  .innovation-section,
+  .contact-section,
+  .footer,
+  .prosthetics-section {
+    max-width: 100vw;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .nav-container,
+  .hero-content,
+  .products-grid,
+  .innovation-grid,
+  .contact-content,
+  .footer-content {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    box-sizing: border-box;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 /* ==================== RESPONSIVE ==================== */
