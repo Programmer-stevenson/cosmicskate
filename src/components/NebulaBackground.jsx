@@ -57,18 +57,6 @@ const NebulaBackground = () => {
       darkTeal: new THREE.Color(0x0f3d4a),        // Dark teal
       blueGreen: new THREE.Color(0x0d4d4a),       // Blue-green
       darkCyan: new THREE.Color(0x0a3d3d),        // Dark cyan
-      // More pink shooting stars
-      hotPink: new THREE.Color(0xff69b4),         // Hot pink
-      lightPink: new THREE.Color(0xffb3d9),       // Light pink
-      rosePink: new THREE.Color(0xff85c1),        // Rose pink
-      magentaPink: new THREE.Color(0xff4d9e),     // Magenta pink
-      softPink: new THREE.Color(0xffc0e0),        // Soft pink
-      // Yellow shooting stars (some)
-      goldenYellow: new THREE.Color(0xffd700),    // Golden yellow
-      brightYellow: new THREE.Color(0xffed4e),    // Bright yellow
-      // Dark blue shooting stars (some)
-      navyBlue: new THREE.Color(0x001f3f),        // Navy blue
-      midnightBlue: new THREE.Color(0x0a1628),    // Midnight blue
     };
 
     // ==================== POINTY STAR SYSTEM ====================
@@ -663,7 +651,7 @@ const NebulaBackground = () => {
     const fullscreenNebula = createFullscreenNebula();
     const nebulae = createNebulaClouds();
     // Planet removed for background version
-    const shootingStars = Array.from({ length: 45 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
+    const shootingStars = Array.from({ length: 20 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
 
     // ==================== ANIMATION LOOP ====================
     let time = 0;
@@ -722,7 +710,7 @@ const NebulaBackground = () => {
       });
       
       shootingStarTimer += delta;
-      if (shootingStarTimer > 1.0 && Math.random() < 0.06) {
+      if (shootingStarTimer > 1.5 && Math.random() < 0.03) {
         const inactive = shootingStars.find(s => !s.active);
         if (inactive) {
           inactive.trigger();

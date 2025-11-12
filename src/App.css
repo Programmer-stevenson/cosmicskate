@@ -57,12 +57,6 @@ body {
   min-height: 100vh;
   color: white;
   background-color: transparent;
-  max-width: 100vw;
-  overflow-x: hidden;
-  width: 100%;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
 }
 
 /* ==================== LOADING SCREEN ==================== */
@@ -131,7 +125,6 @@ body {
   z-index: 1000;
   padding: 1.25rem 2rem;
   background: transparent;
-  -webkit-backdrop-filter: blur(0);
   backdrop-filter: blur(0);
   border-bottom: 1px solid transparent;
   transition: all 0.4s ease;
@@ -144,7 +137,6 @@ body {
     rgba(26, 40, 69, 0.85),      /* nebula-midnight */
     rgba(43, 165, 200, 0.15)     /* cosmic-teal hint */
   );
-  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(0, 212, 255, 0.2);
 }
@@ -220,33 +212,25 @@ body {
   display: none;
   flex-direction: column;
   gap: 6px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid var(--stellar-cyan);
+  background: transparent;
+  border: none;
   cursor: pointer;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: 0.5rem;
   z-index: 1001;
-  min-width: 48px;
-  min-height: 48px;
-  justify-content: center;
-  align-items: center;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 .mobile-menu-button span {
   width: 28px;
   height: 3px;
-  background: var(--stellar-cyan);
+  background: white;
   border-radius: 2px;
   transition: all 0.3s;
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
-  display: block;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
 }
 
-.mobile-menu-button:active span {
-  background: var(--nebula-aqua);
-  box-shadow: 0 0 16px rgba(0, 212, 255, 1);
+.mobile-menu-button:hover span {
+  background: var(--stellar-cyan);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
 }
 
 .mobile-nav-menu {
@@ -255,20 +239,6 @@ body {
 
 /* Mobile Navigation */
 @media (max-width: 968px) {
-  .navbar {
-    padding: 1rem;
-    width: 100%;
-    max-width: 100vw;
-    left: 0;
-    right: 0;
-  }
-
-  .nav-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 0.5rem;
-  }
-
   .desktop-nav {
     display: none !important;
   }
@@ -286,7 +256,6 @@ body {
     right: 0;
     bottom: 0;
     width: 100vw;
-    max-width: 100vw;
     height: 100vh;
     z-index: 998;
     overflow: hidden;
@@ -384,9 +353,8 @@ body {
     transition: all 0.3s;
     box-shadow: 0 0 15px rgba(0, 212, 255, 0.3),
                 0 4px 10px rgba(0, 0, 0, 0.5);
-    min-width: min(300px, 90vw);
-    width: min(300px, 90vw);
-    max-width: 90vw;
+    min-width: 300px;
+    width: 300px;
   }
 
   .mobile-nav-link:hover {
@@ -400,9 +368,8 @@ body {
 
   .mobile-cta {
     margin-top: 2rem;
-    min-width: min(300px, 90vw);
-    width: min(300px, 90vw);
-    max-width: 90vw;
+    min-width: 300px;
+    width: 300px;
     padding: 1.5rem 2.5rem !important;
     font-size: 1.2rem !important;
   }
@@ -534,7 +501,6 @@ body {
   border: 1px solid var(--stellar-cyan);
   border-radius: 50px;
   margin-bottom: 2.5rem;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
@@ -749,7 +715,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   z-index: 10;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -909,7 +874,6 @@ body {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -1091,7 +1055,6 @@ body {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -1390,44 +1353,6 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 600;
-}
-
-/* ==================== MOBILE WIDTH CONSTRAINTS ==================== */
-@media (max-width: 968px) {
-  * {
-    max-width: 100%;
-  }
-
-  body,
-  .app,
-  .hero-section,
-  .products-section,
-  .innovation-section,
-  .contact-section,
-  .footer,
-  .prosthetics-section {
-    max-width: 100vw;
-    overflow-x: hidden;
-    width: 100%;
-  }
-
-  .nav-container,
-  .hero-content,
-  .products-grid,
-  .innovation-grid,
-  .contact-content,
-  .footer-content {
-    max-width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    box-sizing: border-box;
-  }
-
-  img,
-  video {
-    max-width: 100%;
-    height: auto;
-  }
 }
 
 /* ==================== RESPONSIVE ==================== */
