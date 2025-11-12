@@ -59,170 +59,6 @@ const NebulaBackground = () => {
       darkCyan: new THREE.Color(0x0a3d3d),        // Dark cyan
     };
 
-    // ==================== SATURN PLANET ====================
-    function createSaturn() {
-      const saturnGroup = new THREE.Group();
-      
-      // Create Saturn's sphere
-      const planetGeometry = new THREE.SphereGeometry(35, 64, 64);
-      const planetMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          time: { value: 0 }
-        },
-        transparent: true,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        vertexShader: `
-          varying vec3 vNormal;
-          varying vec3 vPosition;
-          varying vec2 vUv;
-          
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            vPosition = position;
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float time;
-          varying vec3 vNormal;
-          varying vec3 vPosition;
-          varying vec2 vUv;
-          
-          void main() {
-            // Saturn's color bands - hot pink and light blue
-            vec3 hotPink = vec3(1.0, 0.08, 0.58);
-            vec3 brightPink = vec3(1.0, 0.41, 0.71);
-            vec3 lightBlue = vec3(0.53, 0.81, 0.98);
-            vec3 skyBlue = vec3(0.53, 0.87, 1.0);
-            vec3 cyan = vec3(0.0, 0.9, 1.0);
-            vec3 electricBlue = vec3(0.4, 0.75, 1.0);
-            vec3 deepPink = vec3(0.95, 0.2, 0.6);
-            
-            float latitude = vUv.y;
-            float bandPattern = sin(latitude * 25.0 + time * 0.1) * 0.5 + 0.5;
-            float bandPattern2 = sin(latitude * 15.0 + time * 0.08) * 0.5 + 0.5;
-            
-            float noise1 = sin(vUv.x * 50.0 + time * 0.05) * 0.5 + 0.5;
-            float noise2 = sin(vUv.y * 30.0 + vUv.x * 20.0) * 0.5 + 0.5;
-            float combinedNoise = noise1 * 0.3 + noise2 * 0.3;
-            
-            vec3 color = mix(hotPink, lightBlue, bandPattern * 0.7);
-            color = mix(color, skyBlue, bandPattern2 * 0.6);
-            color = mix(color, electricBlue, noise2 * 0.5);
-            color = mix(color, brightPink, bandPattern * 0.6);
-            color = mix(color, cyan, noise1 * 0.4);
-            color = mix(color, deepPink, noise2 * 0.3);
-            color += vec3(combinedNoise * 0.15);
-            
-            float northPole = smoothstep(0.82, 0.92, latitude);
-            float southPole = smoothstep(0.18, 0.08, latitude);
-            float poleInfluence = northPole + southPole;
-            
-            float polePattern1 = sin(vUv.x * 30.0 + time * 0.3) * 0.5 + 0.5;
-            float polePattern2 = sin(vUv.x * 50.0 - time * 0.2) * 0.5 + 0.5;
-            float polePattern = mix(polePattern1, polePattern2, 0.5) * 0.2;
-            
-            float sparkle = sin(vUv.x * 60.0 + time * 1.5) * sin(vUv.y * 50.0 - time * 1.2);
-            sparkle = pow(max(sparkle, 0.0), 8.0) * 0.3;
-            
-            vec3 pinkWithPattern = hotPink + vec3(polePattern * 0.2);
-            pinkWithPattern += vec3(sparkle * 0.5, sparkle * 0.6, sparkle * 0.7);
-            
-            color = mix(color, pinkWithPattern, poleInfluence * 0.9);
-            
-            vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
-            float diff = max(dot(vNormal, lightDir), 0.0);
-            float ambient = 0.5;
-            float lighting = ambient + diff * 0.8;
-            
-            color *= lighting * 1.4;
-            
-            float edgeFactor = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
-            edgeFactor = pow(edgeFactor, 2.0);
-            float alpha = 0.35 + edgeFactor * 0.5;
-            color += edgeFactor * 0.3;
-            
-            gl_FragColor = vec4(color, alpha);
-          }
-        `
-      });
-      
-      const ringGeometry = new THREE.RingGeometry(40, 70, 128);
-      const ringMaterial = new THREE.ShaderMaterial({
-        uniforms: { time: { value: 0 } },
-        transparent: true,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        vertexShader: `
-          varying vec2 vUv;
-          varying vec3 vPosition;
-          void main() {
-            vUv = uv;
-            vPosition = position;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float time;
-          varying vec2 vUv;
-          varying vec3 vPosition;
-          
-          void main() {
-            float dist = length(vPosition);
-            vec3 hotPink = vec3(1.0, 0.08, 0.58);
-            vec3 lightBlue = vec3(0.53, 0.81, 0.98);
-            vec3 cyan = vec3(0.0, 0.9, 1.0);
-            
-            float hue = (dist - 40.0) / 30.0;
-            vec3 color = mix(hotPink, lightBlue, hue);
-            color = mix(color, cyan, sin(hue * 3.14159 + time * 0.1) * 0.5 + 0.5);
-            
-            float ringPattern = sin(dist * 0.8) * 0.5 + 0.5;
-            ringPattern += sin(dist * 2.5) * 0.3;
-            
-            float cassiniDiv = smoothstep(53.0, 54.0, dist) * smoothstep(56.0, 55.0, dist);
-            color = color * (0.8 + ringPattern * 0.4);
-            
-            float alpha = 0.3 + ringPattern * 0.25;
-            alpha *= cassiniDiv;
-            alpha *= smoothstep(40.0, 42.0, dist);
-            alpha *= smoothstep(70.0, 68.0, dist);
-            
-            float shimmer = sin(dist * 10.0 + time) * 0.15 + 0.85;
-            color *= shimmer;
-            color += vec3(0.2, 0.3, 0.5) * (1.0 - alpha) * 0.3;
-            
-            gl_FragColor = vec4(color, alpha);
-          }
-        `
-      });
-      
-      const ringsBack = new THREE.Mesh(ringGeometry, ringMaterial);
-      ringsBack.rotation.x = Math.PI / 2.5;
-      ringsBack.renderOrder = 0;
-      saturnGroup.add(ringsBack);
-      
-      const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-      planet.renderOrder = 1;
-      saturnGroup.add(planet);
-      
-      const ringMaterialFront = ringMaterial.clone();
-      const ringsFront = new THREE.Mesh(ringGeometry.clone(), ringMaterialFront);
-      ringsFront.rotation.x = Math.PI / 2.5;
-      ringsFront.renderOrder = 2;
-      saturnGroup.add(ringsFront);
-      
-      saturnGroup.position.set(0, 0, -50);
-      saturnGroup.renderOrder = 1;
-      scene.add(saturnGroup);
-      
-      return { saturnGroup, planetMaterial, ringMaterial, ringMaterialFront };
-    }
-
     // ==================== POINTY STAR SYSTEM ====================
     function createPointyStars() {
       const starCount = 12000;
@@ -814,7 +650,7 @@ const NebulaBackground = () => {
     const wavyBackground = createWavyBackground();
     const fullscreenNebula = createFullscreenNebula();
     const nebulae = createNebulaClouds();
-    const saturn = createSaturn(); // Add Saturn
+    // Saturn removed
     const shootingStars = Array.from({ length: 20 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
 
     // ==================== ANIMATION LOOP ====================
@@ -835,11 +671,7 @@ const NebulaBackground = () => {
       fullscreenNebula.material.uniforms.cycleTime.value = time;
       fullscreenNebula.material.uniforms.sparkle.value = scrollSparkle;
       
-      // Animate Saturn
-      saturn.saturnGroup.rotation.y += delta * 0.15;
-      saturn.planetMaterial.uniforms.time.value = time;
-      saturn.ringMaterial.uniforms.time.value = time;
-      saturn.ringMaterialFront.uniforms.time.value = time;
+      // Saturn removed
       
       scrollSparkle *= 0.92;
       if (scrollSparkle < 0.01) scrollSparkle = 0;

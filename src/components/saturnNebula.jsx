@@ -434,7 +434,7 @@ const SaturnNebula = () => {
 
     // ==================== WAVY BACKGROUND ====================
     function createWavyBackground() {
-      const geometry = new THREE.PlaneGeometry(5000, 5000, 100, 100);
+      const geometry = new THREE.PlaneGeometry(10000, 10000, 100, 100);
       const material = new THREE.ShaderMaterial({
         uniforms: {
           time: { value: 0 }
@@ -460,7 +460,7 @@ const SaturnNebula = () => {
           varying vec2 vUv;
           
           void main() {
-            vec3 color = vec3(0.03, 0.02, 0.08);
+            vec3 color = vec3(0.0, 0.0, 0.0);
             gl_FragColor = vec4(color, 1.0);
           }
         `,
@@ -561,9 +561,12 @@ const SaturnNebula = () => {
             // Apply clouds
             vec3 finalColor = baseColor * (1.0 + combined * 0.8);
             
-            // Vignette effect
-            float vignette = smoothstep(0.8, 0.3, dist);
+            // Smooth vignette that fades to pure black at edges
+            float vignette = smoothstep(1.2, 0.0, dist);
             finalColor *= vignette;
+            
+            // Overall opacity fade - make the whole overlay more subtle
+            float opacity = vignette * 0.6;
             
             // Sparkle effect from scroll
             if (sparkle > 0.01) {
@@ -573,11 +576,13 @@ const SaturnNebula = () => {
               }
             }
             
-            gl_FragColor = vec4(finalColor, 1.0);
+            gl_FragColor = vec4(finalColor, opacity);
           }
         `,
+        transparent: true,
         depthWrite: false,
-        depthTest: false
+        depthTest: false,
+        blending: THREE.NormalBlending
       });
       
       const mesh = new THREE.Mesh(geometry, material);
@@ -834,7 +839,7 @@ const SaturnNebula = () => {
     // ==================== CREATE SCENE ====================
     const { starField, material: starMaterial, speeds } = createPointyStars();
     const wavyBackground = createWavyBackground();
-    const fullscreenNebula = createFullscreenNebula();
+    // Removed fullscreen nebula overlay
     const nebulae = createNebulaClouds();
     const saturn = createSaturn();
     const shootingStars = Array.from({ length: 50 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
@@ -853,9 +858,7 @@ const SaturnNebula = () => {
       starMaterial.uniforms.time.value = time;
       wavyBackground.material.uniforms.time.value = time;
       
-      fullscreenNebula.material.uniforms.time.value = time;
-      fullscreenNebula.material.uniforms.cycleTime.value = time;
-      fullscreenNebula.material.uniforms.sparkle.value = scrollSparkle;
+      // Removed fullscreen nebula
       
       // Animate Saturn
       saturn.saturnGroup.rotation.y += delta * 0.15;
