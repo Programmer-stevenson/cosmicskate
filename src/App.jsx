@@ -146,10 +146,7 @@ function App() {
               <a href="#prosthetics" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Finger Protectors</a>
               <a href="#innovation" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Innovation</a>
               <a href="#contact" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</a>
-              <button className="chrome-button mobile-cta">
-                <span className="button-text">Shop Now</span>
-                <div className="button-shine"></div>
-              </button>
+              
             </div>
           </div>
         )}
