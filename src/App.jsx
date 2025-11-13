@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import NebulaBackground from './components/NebulaBackground';
 import './App.css';
 import SaturnNebula from './components/saturnNebula';
 
@@ -102,14 +101,28 @@ function App() {
           </button>
         </div>
 
-        {/* Mobile Navigation Menu with Nebula Background */}
+        {/* Mobile Navigation Menu with Space Theme */}
         {mobileMenuOpen && (
           <div className="mobile-nav-menu">
-            <div className="mobile-nav-nebula">
-              <NebulaBackground/>
+            {/* Space Background with Stars */}
+            <div className="space-background">
+              {/* Generate multiple sparkling stars */}
+              {[...Array(50)].map((_, i) => (
+                <div
+                  key={i}
+                  className="star"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`
+                  }}
+                ></div>
+              ))}
             </div>
+            
             <div className="mobile-nav-content">
-              {/* Logo at top with nebula glow and bounce */}
+              {/* Logo at top */}
               <div className="mobile-nav-logo">
                 <img src="/logo.png" alt="Galaxy Guitar Products USA" />
               </div>
