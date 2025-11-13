@@ -344,31 +344,29 @@ body {
     }
   }
 
-  .mobile-nav-link {
+ .mobile-nav-link {
     padding: 1rem 2rem;
     text-align: center;
     color: white;
     text-decoration: none;
     font-weight: 600;
     font-size: 1.2rem;
-    /* Solid background on top of nebula */
-    background: rgba(10, 22, 40, 0.85);
-    border: 2px solid transparent;
-    border-image: linear-gradient(135deg, var(--stellar-cyan), var(--stellar-violet)) 1;
+    /* Highly transparent background, no borders */
+    background: rgba(10, 22, 40, 0.15);
+    border: none;
     border-radius: 12px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
-                0 0 15px rgba(0, 212, 255, 0.2);
+    box-shadow: none;
     min-width: 250px;
     width: 250px;
   }
 
-  .mobile-nav-link:hover {
-    background: rgba(0, 212, 255, 0.25);
-    border-image: linear-gradient(135deg, var(--nebula-aqua), var(--cosmic-glow)) 1;
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5),
-                0 0 25px rgba(0, 212, 255, 0.5),
-                0 0 40px rgba(0, 212, 255, 0.3);
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    background: rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.6),
+                0 0 50px rgba(0, 212, 255, 0.4),
+                inset 0 0 20px rgba(0, 212, 255, 0.2);
     transform: scale(1.05) translateY(-2px);
   }
 
