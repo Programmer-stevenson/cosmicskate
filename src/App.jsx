@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './App.css';
 import SaturnNebula from './components/saturnNebula';
 
@@ -7,6 +7,19 @@ function App() {
   const [activeSection, setActiveSection] = useState('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Memoize star positions to prevent recalculation on every render
+  const stars = useMemo(() => 
+    Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      animationDelay: Math.random() * 3,
+      animationDuration: 2 + Math.random() * 2
+    })),
+    []
+  );
+
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
@@ -107,15 +120,15 @@ function App() {
             {/* Space Background with Stars */}
             <div className="space-background">
               {/* Generate multiple sparkling stars */}
-              {[...Array(50)].map((_, i) => (
+              {stars.map((star) => (
                 <div
-                  key={i}
+                  key={star.id}
                   className="star"
                   style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 3}s`,
-                    animationDuration: `${2 + Math.random() * 2}s`
+                    left: `${star.left}%`,
+                    top: `${star.top}%`,
+                    animationDelay: `${star.animationDelay}s`,
+                    animationDuration: `${star.animationDuration}s`
                   }}
                 ></div>
               ))}
