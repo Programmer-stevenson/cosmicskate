@@ -20,16 +20,11 @@ const SaturnNebula = () => {
     );
     camera.position.set(0, 0, 100);
 
-    // Optimized renderer settings
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: window.devicePixelRatio === 1, // Only on non-retina
-      alpha: false,
-      powerPreference: "high-performance"
-    });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Cap for performance
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3; // Slightly brighter
+    renderer.toneMappingExposure = 1.2;
     containerRef.current.appendChild(renderer.domElement);
 
     // ==================== MOUSE INTERACTION ====================
@@ -52,43 +47,28 @@ const SaturnNebula = () => {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('wheel', handleWheel);
 
-    // ==================== VIBRANT NEBULA COLOR PALETTE ====================
+    // ==================== NEBULA COLOR PALETTE ====================
     const nebulaColors = {
-      // Electric Pinks & Magentas
-      hotPink: new THREE.Color(0xff1493),         // Deep hot pink
-      electricPink: new THREE.Color(0xff69b4),    // Hot pink
-      neonMagenta: new THREE.Color(0xff00ff),     // Pure magenta
-      rosePink: new THREE.Color(0xff1493),        // Rose pink
-      lightPink: new THREE.Color(0xffb6c1),       // Light pink
-      
-      // Vibrant Cyans & Aquas  
-      electricCyan: new THREE.Color(0x00ffff),    // Pure cyan
-      neonAqua: new THREE.Color(0x00fff7),        // Aqua
-      brightTurquoise: new THREE.Color(0x40e0d0), // Turquoise
-      skyBlue: new THREE.Color(0x87ceeb),         // Sky blue
-      
-      // Mint & Green Tones
-      neonMint: new THREE.Color(0x00ff9f),        // Neon mint
-      electricLime: new THREE.Color(0xccff00),    // Electric lime
-      mintGreen: new THREE.Color(0x98ff98),       // Mint green
-      
-      // Purple & Violet
-      electricPurple: new THREE.Color(0x9d00ff),  // Electric purple
-      neonViolet: new THREE.Color(0x8a2be2),      // Blue violet
-      deepPurple: new THREE.Color(0x9400d3),      // Deep purple
-      
-      // Golden & Orange Accents
-      neonOrange: new THREE.Color(0xff6600),      // Neon orange
-      electricGold: new THREE.Color(0xffd700),    // Gold
-      peach: new THREE.Color(0xffdab9),           // Peach
+      deepPurple: new THREE.Color(0x1a0a2e),      // Very dark purple
+      darkViolet: new THREE.Color(0x2d1b4e),      // Dark violet
+      richPurple: new THREE.Color(0x3d2c5e),      // Rich purple
+      deepBlue: new THREE.Color(0x1a3d5a),        // Deep blue
+      tealBlue: new THREE.Color(0x1a4d5a),        // Teal blue
+      darkTeal: new THREE.Color(0x0f3d4a),        // Dark teal
+      blueGreen: new THREE.Color(0x0d4d4a),       // Blue-green
+      darkCyan: new THREE.Color(0x0a3d3d),        // Dark cyan
+      mintGreen: new THREE.Color(0x66e6b3),       // Minty green
+      lightPink: new THREE.Color(0xffbfd6),       // Light pink
+      rosePink: new THREE.Color(0xf299bf),        // Rose pink
+      softMint: new THREE.Color(0x80ffcc),        // Soft mint
     };
 
-    // ==================== OPTIMIZED COLORFUL SATURN ====================
+    // ==================== SATURN PLANET ====================
     function createSaturn() {
       const saturnGroup = new THREE.Group();
       
-      // Ultra-optimized sphere with fewer segments for performance
-      const planetGeometry = new THREE.SphereGeometry(35, 32, 32);
+      // Create Saturn's sphere
+      const planetGeometry = new THREE.SphereGeometry(35, 64, 64);
       const planetMaterial = new THREE.ShaderMaterial({
         uniforms: {
           time: { value: 0 }
@@ -99,10 +79,12 @@ const SaturnNebula = () => {
         depthWrite: false,
         vertexShader: `
           varying vec3 vNormal;
+          varying vec3 vPosition;
           varying vec2 vUv;
           
           void main() {
             vNormal = normalize(normalMatrix * normal);
+            vPosition = position;
             vUv = uv;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
@@ -110,54 +92,92 @@ const SaturnNebula = () => {
         fragmentShader: `
           uniform float time;
           varying vec3 vNormal;
+          varying vec3 vPosition;
           varying vec2 vUv;
           
           void main() {
-            // Ultra-vibrant color palette
-            vec3 hotPink = vec3(1.0, 0.08, 0.58);
-            vec3 electricCyan = vec3(0.0, 1.0, 1.0);
-            vec3 neonMint = vec3(0.0, 1.0, 0.62);
-            vec3 electricPurple = vec3(0.62, 0.0, 1.0);
-            vec3 neonOrange = vec3(1.0, 0.4, 0.0);
-            vec3 electricGold = vec3(1.0, 0.84, 0.0);
+            // Saturn's color bands - hot pink and light blue
+            vec3 hotPink = vec3(1.0, 0.08, 0.58);        // Hot pink #FF1493
+            vec3 brightPink = vec3(1.0, 0.41, 0.71);     // Bright hot pink
+            vec3 lightBlue = vec3(0.53, 0.81, 0.98);     // Light blue #87CEEB
+            vec3 skyBlue = vec3(0.53, 0.87, 1.0);        // Sky blue
+            vec3 cyan = vec3(0.0, 0.9, 1.0);             // Bright cyan
+            vec3 electricBlue = vec3(0.4, 0.75, 1.0);    // Electric blue
+            vec3 deepPink = vec3(0.95, 0.2, 0.6);        // Deep pink
             
-            // Efficient band pattern using single sin wave
-            float lat = vUv.y;
-            float band = sin(lat * 12.0 + time * 0.15) * 0.5 + 0.5;
-            float band2 = sin(lat * 8.0 - time * 0.1) * 0.5 + 0.5;
+            // Create horizontal bands based on latitude
+            float latitude = vUv.y;
+            float bandPattern = sin(latitude * 25.0 + time * 0.1) * 0.5 + 0.5;
+            float bandPattern2 = sin(latitude * 15.0 + time * 0.08) * 0.5 + 0.5;
             
-            // Simple noise for texture
-            float noise = sin(vUv.x * 30.0 + time * 0.08) * 0.5 + 0.5;
+            // Add some noise for texture
+            float noise1 = sin(vUv.x * 50.0 + time * 0.05) * 0.5 + 0.5;
+            float noise2 = sin(vUv.y * 30.0 + vUv.x * 20.0) * 0.5 + 0.5;
+            float combinedNoise = noise1 * 0.3 + noise2 * 0.3;
             
-            // Color mixing - optimized
-            vec3 color = mix(hotPink, electricCyan, band);
-            color = mix(color, neonMint, band2 * 0.7);
-            color = mix(color, electricPurple, noise * 0.4);
-            color = mix(color, neonOrange, band * band2 * 0.5);
+            // Mix hot pink and light blue with strong contrast
+            vec3 color = mix(hotPink, lightBlue, bandPattern * 0.7);
+            color = mix(color, skyBlue, bandPattern2 * 0.6);
+            // Add electric blue accents
+            color = mix(color, electricBlue, noise2 * 0.5);
+            // Add more hot pink bands for vibrancy
+            color = mix(color, brightPink, bandPattern * 0.6);
+            // Add cyan highlights
+            color = mix(color, cyan, noise1 * 0.4);
+            // Add deep pink for depth
+            color = mix(color, deepPink, noise2 * 0.3);
+            color += vec3(combinedNoise * 0.15);
             
-            // Pole highlights - hot pink/gold poles
-            float pole = smoothstep(0.85, 0.95, lat) + smoothstep(0.15, 0.05, lat);
-            color = mix(color, mix(hotPink, electricGold, 0.5), pole * 0.8);
+            // Add hot pink to the poles (top and bottom)
+            float northPole = smoothstep(0.82, 0.92, latitude);  // Top of planet
+            float southPole = smoothstep(0.18, 0.08, latitude);  // Bottom of planet
+            float poleInfluence = northPole + southPole;
             
-            // Edge glow for transparency
-            float rim = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
-            rim = pow(rim, 2.5);
+            // Add patterns to the poles
+            float polePattern1 = sin(vUv.x * 30.0 + time * 0.3) * 0.5 + 0.5;
+            float polePattern2 = sin(vUv.x * 50.0 - time * 0.2) * 0.5 + 0.5;
+            float polePattern = mix(polePattern1, polePattern2, 0.5) * 0.2;
             
-            // Transparent ghostly effect
-            float alpha = 0.25 + rim * 0.6;
-            color += rim * 0.4;
-            color *= 1.5; // Boost brightness
+            // Add bright sparkles
+            float sparkle = sin(vUv.x * 60.0 + time * 1.5) * sin(vUv.y * 50.0 - time * 1.2);
+            sparkle = pow(max(sparkle, 0.0), 8.0) * 0.3;
+            
+            // Create vibrant hot pink poles with patterns
+            vec3 pinkWithPattern = hotPink + vec3(polePattern * 0.2);
+            pinkWithPattern += vec3(sparkle * 0.5, sparkle * 0.6, sparkle * 0.7);  // Blue-tinted sparkle
+            
+            // Apply hot pink to poles with strong presence
+            color = mix(color, pinkWithPattern, poleInfluence * 0.9);
+            
+            // Add lighting based on normal
+            vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+            float diff = max(dot(vNormal, lightDir), 0.0);
+            float ambient = 0.5;
+            float lighting = ambient + diff * 0.8;
+            
+            color *= lighting;
+            
+            // Boost overall brightness
+            color *= 1.4;
+            
+            // Create ghostly transparent effect
+            // Edge glow - brighter at edges for ghostly appearance
+            float edgeFactor = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
+            edgeFactor = pow(edgeFactor, 2.0);
+            
+            // Make center more transparent, edges more visible
+            float alpha = 0.35 + edgeFactor * 0.5;
+            
+            // Add ethereal glow
+            color += edgeFactor * 0.3;
             
             gl_FragColor = vec4(color, alpha);
           }
         `
       });
       
-      const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-      saturnGroup.add(planet);
-      
-      // Ultra-optimized spiky minty green fire rings with 64 segments
-      const ringGeometry = new THREE.RingGeometry(40, 70, 64);
+      // Create Saturn's rings geometry and material first
+      const ringGeometry = new THREE.RingGeometry(40, 70, 128);
       const ringMaterial = new THREE.ShaderMaterial({
         uniforms: {
           time: { value: 0 }
@@ -181,148 +201,66 @@ const SaturnNebula = () => {
           varying vec2 vUv;
           varying vec3 vPosition;
           
-          // Noise function for fire turbulence
-          float hash(vec2 p) {
-            return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-          }
-          
-          float noise(vec2 p) {
-            vec2 i = floor(p);
-            vec2 f = fract(p);
-            f = f * f * (3.0 - 2.0 * f);
-            
-            float a = hash(i);
-            float b = hash(i + vec2(1.0, 0.0));
-            float c = hash(i + vec2(0.0, 1.0));
-            float d = hash(i + vec2(1.0, 1.0));
-            
-            return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-          }
-          
-          float fbm(vec2 p) {
-            float value = 0.0;
-            float amplitude = 0.5;
-            float frequency = 2.0;
-            
-            for(int i = 0; i < 5; i++) {
-              value += amplitude * noise(p * frequency);
-              frequency *= 2.0;
-              amplitude *= 0.5;
-            }
-            return value;
-          }
-          
           void main() {
             float dist = length(vPosition);
-            float angle = atan(vPosition.y, vPosition.x);
             
-            // Minty green color palette
-            vec3 darkMint = vec3(0.0, 0.3, 0.2);        // Deep mint base
-            vec3 mint = vec3(0.0, 0.6, 0.4);            // Dark mint
-            vec3 mintGreen = vec3(0.0, 0.8, 0.5);       // Medium mint
-            vec3 brightMint = vec3(0.0, 1.0, 0.62);     // Bright mint
-            vec3 lightMint = vec3(0.4, 1.0, 0.75);      // Light mint
-            vec3 paleMint = vec3(0.7, 1.0, 0.85);       // Pale mint
-            vec3 whiteMint = vec3(0.9, 1.0, 0.95);      // White mint
+            // Create hot pink and light blue gradient based on distance
+            vec3 hotPink = vec3(1.0, 0.08, 0.58);
+            vec3 lightBlue = vec3(0.53, 0.81, 0.98);
+            vec3 cyan = vec3(0.0, 0.9, 1.0);
             
-            // SPIKY FIRE - Sharp angular patterns
-            float spikeAngle = angle * 25.0; // More spikes
-            float spike = abs(sin(spikeAngle + time * 2.0));
-            spike = pow(spike, 0.3); // Sharpen the spikes
+            float hue = (dist - 40.0) / 30.0; // Map distance to 0-1 range
             
-            // Secondary spike layer for more detail
-            float spike2 = abs(sin(spikeAngle * 1.5 - time * 1.5));
-            spike2 = pow(spike2, 0.4);
+            // Mix pink to blue gradient
+            vec3 color = mix(hotPink, lightBlue, hue);
+            color = mix(color, cyan, sin(hue * 3.14159 + time * 0.1) * 0.5 + 0.5);
             
-            // Combine spikes
-            float spikePattern = spike * 0.7 + spike2 * 0.3;
+            // Add ring bands with gaps
+            float ringPattern = sin(dist * 0.8) * 0.5 + 0.5;
+            ringPattern += sin(dist * 2.5) * 0.3;
             
-            // Fire turbulence - rises upward with spiky motion
-            vec2 fireUV = vec2(angle * 5.0, (dist - 40.0) * 0.1);
-            float turbulence = fbm(fireUV + vec2(time * 0.3, -time * 1.2));
-            float turbulence2 = fbm(fireUV * 2.5 + vec2(time * 0.5, -time * 1.8));
+            // Add the Cassini Division (gap)
+            float cassiniDiv = smoothstep(53.0, 54.0, dist) * smoothstep(56.0, 55.0, dist);
             
-            // Rising spiky flames pattern
-            float flameRise = fbm(vec2(angle * 15.0, dist * 0.2 - time * 2.0));
+            // Mix colors with pattern
+            color = color * (0.8 + ringPattern * 0.4);
             
-            // Flickering flames with spikes
-            float flicker = sin(time * 10.0 + angle * 30.0) * 0.5 + 0.5;
-            flicker = mix(0.6, 1.0, flicker);
+            // Add transparency variations - more transparent, ghostly
+            float alpha = 0.3 + ringPattern * 0.25;
+            alpha *= cassiniDiv; // Make the gap more visible
+            alpha *= smoothstep(40.0, 42.0, dist); // Fade at inner edge
+            alpha *= smoothstep(70.0, 68.0, dist); // Fade at outer edge
             
-            // Combine turbulence with spikes for jagged fire
-            float firePattern = turbulence * 0.4 + turbulence2 * 0.3 + flameRise * 0.3;
-            firePattern *= flicker;
-            firePattern *= spikePattern; // Apply spiky pattern
+            // Add ethereal shimmer and glow
+            float shimmer = sin(dist * 10.0 + time) * 0.15 + 0.85;
+            color *= shimmer;
             
-            // Distance-based variation
-            float distNorm = (dist - 40.0) / 30.0;
-            
-            // Create minty green fire gradient
-            vec3 color;
-            
-            if (firePattern > 0.85) {
-              // Hottest spikes - white mint
-              color = mix(paleMint, whiteMint, (firePattern - 0.85) / 0.15);
-            } else if (firePattern > 0.7) {
-              // Very hot - pale mint
-              color = mix(lightMint, paleMint, (firePattern - 0.7) / 0.15);
-            } else if (firePattern > 0.55) {
-              // Hot - light mint
-              color = mix(brightMint, lightMint, (firePattern - 0.55) / 0.15);
-            } else if (firePattern > 0.4) {
-              // Medium - bright mint
-              color = mix(mintGreen, brightMint, (firePattern - 0.4) / 0.15);
-            } else if (firePattern > 0.25) {
-              // Warm - medium mint
-              color = mix(mint, mintGreen, (firePattern - 0.25) / 0.15);
-            } else if (firePattern > 0.1) {
-              // Cool - dark mint
-              color = mix(darkMint, mint, (firePattern - 0.1) / 0.15);
-            } else {
-              // Embers - deep mint base
-              color = mix(darkMint * 0.5, darkMint, firePattern / 0.1);
-            }
-            
-            // Add distance-based cooling (edges are slightly darker)
-            color = mix(color, darkMint, distNorm * 0.3);
-            
-            // Spiky ember sparkles in bright mint
-            float ember = hash(vPosition.xy * 80.0 + time * 2.0);
-            if (ember > 0.985 && firePattern > 0.2 && spikePattern > 0.6) {
-              color += whiteMint * 0.8;
-            }
-            
-            // Sharp spiky edges - boost transparency at spike peaks
-            float spikeAlpha = smoothstep(0.4, 0.9, spikePattern);
-            
-            // Transparent fire with spiky edges
-            float alpha = firePattern * 0.7 * spikeAlpha;
-            alpha *= smoothstep(40.0, 42.0, dist); // Fade inner edge
-            alpha *= smoothstep(70.0, 66.0, dist); // Fade outer edge
-            
-            // Add glow and intensity
-            color *= 1.7;
+            // Add ghostly edge glow
+            color += vec3(0.2, 0.3, 0.5) * (1.0 - alpha) * 0.3;
             
             gl_FragColor = vec4(color, alpha);
           }
         `
       });
       
-      // Create back half of rings
+      // Create back half of rings (behind planet)
       const ringsBack = new THREE.Mesh(ringGeometry, ringMaterial);
       ringsBack.rotation.x = Math.PI / 2.5;
-      ringsBack.renderOrder = 0;
+      ringsBack.renderOrder = 0; // Render first (behind planet)
       saturnGroup.add(ringsBack);
       
+      const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+      planet.renderOrder = 1;
       saturnGroup.add(planet);
       
-      // Create front half of rings
+      // Create front half of rings (in front of planet)
       const ringMaterialFront = ringMaterial.clone();
       const ringsFront = new THREE.Mesh(ringGeometry.clone(), ringMaterialFront);
       ringsFront.rotation.x = Math.PI / 2.5;
-      ringsFront.renderOrder = 2;
+      ringsFront.renderOrder = 2; // Render last (in front of planet)
       saturnGroup.add(ringsFront);
       
+      // Position Saturn in the center but slightly back
       saturnGroup.position.set(0, 0, -50);
       saturnGroup.renderOrder = 1; // Render before stars
       scene.add(saturnGroup);
@@ -330,10 +268,9 @@ const SaturnNebula = () => {
       return { saturnGroup, planetMaterial, ringMaterial, ringMaterialFront };
     }
 
-    // ==================== OPTIMIZED COLORFUL STAR SYSTEM ====================
+    // ==================== POINTY STAR SYSTEM ====================
     function createPointyStars() {
-      // Reduced star count for CPU optimization
-      const starCount = 8000;
+      const starCount = 12000;
       const geometry = new THREE.BufferGeometry();
       
       const positions = new Float32Array(starCount * 3);
@@ -344,23 +281,21 @@ const SaturnNebula = () => {
       const spikes = new Float32Array(starCount);
       const animModes = new Float32Array(starCount);
       
-      // Ultra-vibrant star colors
       const starColors = [
-        new THREE.Color(0xff1493), // Hot pink
-        new THREE.Color(0x00ffff), // Electric cyan
-        new THREE.Color(0x00ff9f), // Neon mint
-        new THREE.Color(0xff00ff), // Magenta
-        new THREE.Color(0xffd700), // Gold
-        new THREE.Color(0xff6600), // Neon orange
-        new THREE.Color(0x9d00ff), // Electric purple
-        new THREE.Color(0xccff00), // Electric lime
-        new THREE.Color(0xffffff), // Pure white
+        new THREE.Color(0.61, 0.77, 1.0),
+        new THREE.Color(0.85, 0.91, 1.0),
+        new THREE.Color(1.0, 0.98, 0.86),
+        new THREE.Color(1.0, 0.91, 0.72),
+        new THREE.Color(1.0, 0.76, 0.53),
       ];
       
       for (let i = 0; i < starCount; i++) {
-        let radius = (Math.random() < 0.9) 
-          ? 800 + Math.random() * 1800 
-          : Math.random() * 600;
+        let radius;
+        if (Math.random() < 0.9) {
+          radius = 800 + Math.random() * 1800;
+        } else {
+          radius = Math.random() * 600;
+        }
         
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
@@ -369,13 +304,14 @@ const SaturnNebula = () => {
         positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
         positions[i * 3 + 2] = -Math.random() * 3000 - 500;
         
-        // Random vibrant color
-        const starColor = starColors[Math.floor(Math.random() * starColors.length)];
+        const colorIndex = Math.floor(Math.pow(Math.random(), 2) * starColors.length);
+        const starColor = starColors[colorIndex];
         colors[i * 3] = starColor.r;
         colors[i * 3 + 1] = starColor.g;
         colors[i * 3 + 2] = starColor.b;
         
-        sizes[i] = Math.random() * 3 + 0.8;
+        const magnitude = Math.random();
+        sizes[i] = Math.pow(magnitude, 0.5) * 3 + 0.8;
         speeds[i] = 50 + Math.random() * 150;
         phases[i] = Math.random() * Math.PI * 2;
         spikes[i] = 4 + Math.floor(Math.random() * 3);
@@ -661,16 +597,14 @@ const SaturnNebula = () => {
       return { mesh, material, scene: nebulaScene, camera: nebulaCamera };
     }
 
-    // ==================== OPTIMIZED COLORFUL NEBULA CLOUDS ====================
+    // ==================== NEBULA CLOUDS ====================
     function createNebulaClouds() {
       const nebulae = [];
       const colorKeys = Object.keys(nebulaColors);
       
-      // Reduced count for performance
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 8; i++) {
         const size = 400 + Math.random() * 600;
-        // Reduced segments for optimization
-        const geometry = new THREE.PlaneGeometry(size, size, 16, 16);
+        const geometry = new THREE.PlaneGeometry(size, size, 32, 32);
         
         const colorKey = colorKeys[Math.floor(Math.random() * colorKeys.length)];
         const baseColor = nebulaColors[colorKey];
@@ -683,13 +617,14 @@ const SaturnNebula = () => {
           vertexShader: `
             uniform float time;
             varying vec2 vUv;
+            varying vec3 vPosition;
             
             void main() {
               vUv = uv;
-              vec3 pos = position;
+              vPosition = position;
               
-              // Simple wave for efficiency
-              float wave = sin(pos.x * 0.01 + time * 0.5) * 15.0;
+              vec3 pos = position;
+              float wave = sin(pos.x * 0.01 + time) * cos(pos.y * 0.01 + time) * 20.0;
               pos.z += wave;
               
               gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -699,6 +634,7 @@ const SaturnNebula = () => {
             uniform float time;
             uniform vec3 baseColor;
             varying vec2 vUv;
+            varying vec3 vPosition;
             
             float noise(vec2 p) {
               return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
@@ -708,15 +644,11 @@ const SaturnNebula = () => {
               vec2 center = vUv - 0.5;
               float dist = length(center);
               
-              // Efficient noise
-              float n = noise(vUv * 8.0 + time * 0.08);
+              float noiseVal = noise(vUv * 10.0 + time * 0.1);
+              float alpha = smoothstep(0.5, 0.0, dist) * 0.3;
+              alpha *= noiseVal;
               
-              // Radial gradient for cloud
-              float alpha = smoothstep(0.5, 0.0, dist) * 0.25;
-              alpha *= n;
-              
-              // Brighter, more vibrant color
-              vec3 color = baseColor * (1.3 + n * 0.4);
+              vec3 color = baseColor * (1.0 + noiseVal * 0.5);
               
               gl_FragColor = vec4(color, alpha);
             }
@@ -729,7 +661,7 @@ const SaturnNebula = () => {
         
         const mesh = new THREE.Mesh(geometry, material);
         
-        const angle = (i / 6) * Math.PI * 2;
+        const angle = (i / 8) * Math.PI * 2;
         const radius = 500 + Math.random() * 800;
         mesh.position.x = Math.cos(angle) * radius;
         mesh.position.y = Math.sin(angle) * radius;
@@ -795,8 +727,8 @@ const SaturnNebula = () => {
         this.trail.visible = false;
         scene.add(this.trail);
         
-        // Create optimized head with fewer segments
-        const headGeometry = new THREE.SphereGeometry(2, 6, 6);
+        // Create head
+        const headGeometry = new THREE.SphereGeometry(2, 8, 8);
         const headMaterial = new THREE.MeshBasicMaterial({
           color: this.baseColor,
           transparent: true,
@@ -904,13 +836,13 @@ const SaturnNebula = () => {
       }
     }
 
-    // ==================== CREATE OPTIMIZED SCENE ====================
+    // ==================== CREATE SCENE ====================
     const { starField, material: starMaterial, speeds } = createPointyStars();
     const wavyBackground = createWavyBackground();
+    // Removed fullscreen nebula overlay
     const nebulae = createNebulaClouds();
     const saturn = createSaturn();
-    // Reduced shooting stars for CPU optimization
-    const shootingStars = Array.from({ length: 30 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
+    const shootingStars = Array.from({ length: 50 }, () => new ShootingStarTowardsUser(scene, camera, nebulaColors));
 
     // ==================== ANIMATION LOOP ====================
     let time = 0;
