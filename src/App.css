@@ -418,29 +418,24 @@ body {
   .mobile-nav-logo {
     margin-top: 10px;
     margin-bottom: 3rem;
-    animation: float-glow 3s ease-in-out infinite;
+    animation: gentle-float 3s ease-in-out infinite;
+    /* Use box-shadow instead of drop-shadow for better performance */
   }
 
   .mobile-nav-logo img {
     height: 100px;
     width: auto;
-    filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.7))
-            drop-shadow(0 0 45px rgba(77, 217, 245, 0.6))
-            drop-shadow(0 0 65px rgba(123, 104, 238, 0.5));
+    /* Static glow using box-shadow (more performant than drop-shadow) */
+    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
   }
 
-  @keyframes float-glow {
+  /* Simplified animation - only transform, no filter animation */
+  @keyframes gentle-float {
     0%, 100% {
-      transform: translateY(0) scale(1);
-      filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.7))
-              drop-shadow(0 0 45px rgba(77, 217, 245, 0.6))
-              drop-shadow(0 0 65px rgba(123, 104, 238, 0.5));
+      transform: translateY(0);
     }
     50% {
-      transform: translateY(-15px) scale(1.05);
-      filter: drop-shadow(0 0 35px rgba(0, 212, 255, 0.9))
-              drop-shadow(0 0 55px rgba(77, 217, 245, 0.8))
-              drop-shadow(0 0 75px rgba(123, 104, 238, 0.7));
+      transform: translateY(-10px);
     }
   }
 
