@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import './App.css';
 import SaturnNebula from './components/saturnNebula';
 
@@ -7,8 +8,9 @@ function App() {
   const [activeSection, setActiveSection] = useState('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { scrollYProgress } = useScroll();
 
-  // Memoize star positions to prevent recalculation on every render
+  // Memoize star positions
   const stars = useMemo(() => 
     Array.from({ length: 50 }, (_, i) => ({
       id: i,
@@ -20,21 +22,18 @@ function App() {
     []
   );
 
-
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Disable body scroll when mobile menu is open
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     
-    // Cleanup on unmount
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -42,10 +41,9 @@ function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show navbar after scrolling 100px
       setScrolled(window.scrollY > 100);
 
-      const sections = ['hero', 'guitars', 'prosthetics', 'innovation', 'contact'];
+      const sections = ['hero', 'boards', 'gear', 'innovation', 'contact'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const section of sections) {
@@ -64,598 +62,760 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="loading-screen">
-        <div className="loading-content">
-          <div className="loading-logo">
-            <img src="/logo.png" alt="Galaxy Guitar Products USA" style={{ width: '300px', marginBottom: '2rem' }} />
-          </div>
-          <div className="loading-spinner"></div>
-          <p className="loading-text">Entering the Galaxy...</p>
-        </div>
-      </div>
+      <motion.div 
+        className="loading-screen"
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div 
+          className="loading-content"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div 
+            className="loading-logo"
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <span className="loading-emoji">🛹</span>
+          </motion.div>
+          <motion.div 
+            className="loading-spinner"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.p 
+            className="loading-text"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Loading the Skatepark...
+          </motion.p>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
     <div className="app">
+      {/* Saturn Nebula - Fixed Background for Entire Page */}
       <SaturnNebula />
       
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="scroll-progress"
+        style={{ scaleX: scrollYProgress }}
+      />
+      
       {/* Navigation */}
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+      <motion.nav 
+        className={`navbar ${scrolled ? 'scrolled' : ''}`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="nav-container">
-          <div className="nav-logo">
-            <img src="/logo.png" alt="Galaxy" style={{ height: '45px' }} />
-          </div>
+          <motion.div 
+            className="nav-logo"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="logo-icon">🛹</span>
+            <div>
+              <div className="logo-galaxy">COSMIC SKATE</div>
+              <div className="logo-subtitle">Ride the Galaxy</div>
+            </div>
+          </motion.div>
           
           {/* Desktop Navigation */}
           <div className="nav-links desktop-nav">
-            <a href="#hero" className={activeSection === 'hero' ? 'nav-link active' : 'nav-link'}>Home</a>
-            <a href="#guitars" className={activeSection === 'guitars' ? 'nav-link active' : 'nav-link'}>Guitars</a>
-            <a href="#prosthetics" className={activeSection === 'prosthetics' ? 'nav-link active' : 'nav-link'}>Finger Protectors</a>
-            <a href="#innovation" className={activeSection === 'innovation' ? 'nav-link active' : 'nav-link'}>Innovation</a>
-            <a href="#contact" className={activeSection === 'contact' ? 'nav-link active' : 'nav-link'}>Contact</a>
+            {['Home', 'Boards', 'Gear', 'Innovation', 'Contact'].map((item, index) => (
+              <motion.a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className={activeSection === item.toLowerCase() || (item === 'Home' && activeSection === 'hero') ? 'nav-link active' : 'nav-link'}
+                whileHover={{ y: -2 }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                {item}
+              </motion.a>
+            ))}
           </div>
           
-          <button className="chrome-button nav-cta desktop-nav">
+          <motion.button 
+            className="chrome-button nav-cta desktop-nav"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <span className="button-text">Shop Now</span>
             <div className="button-shine"></div>
-          </button>
+          </motion.button>
 
           {/* Mobile Menu Button */}
-          <button 
+          <motion.button 
             className="mobile-menu-button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            whileTap={{ scale: 0.9 }}
           >
             <span></span>
             <span></span>
             <span></span>
-          </button>
+          </motion.button>
         </div>
 
-        {/* Mobile Navigation Menu with Space Theme */}
-        {mobileMenuOpen && (
-          <div className="mobile-nav-menu">
-            <SaturnNebula />
-            {/* Space Background with Stars */}
-            <div className="space-background">
-              {/* Generate multiple sparkling stars */}
-              {stars.map((star) => (
-                <div
-                  key={star.id}
-                  className="star"
-                  style={{
-                    left: `${star.left}%`,
-                    top: `${star.top}%`,
-                    animationDelay: `${star.animationDelay}s`,
-                    animationDuration: `${star.animationDuration}s`
-                  }}
-                ></div>
-              ))}
-            </div>
-            
-            <div className="mobile-nav-content">
-              {/* Logo at top */}
-              <div className="mobile-nav-logo">
-                <img src="/logo.png" alt="Galaxy Guitar Products USA" />
+        {/* Mobile Navigation Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div 
+              className="mobile-nav-menu"
+              initial={{ opacity: 0, x: '100%' }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: '100%' }}
+              transition={{ duration: 0.3 }}
+            >
+              <SaturnNebula />
+              <div className="space-background">
+                {stars.map((star) => (
+                  <div
+                    key={star.id}
+                    className="star"
+                    style={{
+                      left: `${star.left}%`,
+                      top: `${star.top}%`,
+                      animationDelay: `${star.animationDelay}s`,
+                      animationDuration: `${star.animationDuration}s`
+                    }}
+                  ></div>
+                ))}
               </div>
               
-              <a href="#hero" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Home</a>
-              <a href="#guitars" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Guitars</a>
-              <a href="#prosthetics" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Finger Protectors</a>
-              <a href="#innovation" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Innovation</a>
-              <a href="#contact" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>Contact</a>
-              
-            </div>
-          </div>
-        )}
-      </nav>
+              <motion.div 
+                className="mobile-nav-content"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.div 
+                  className="mobile-nav-logo"
+                  variants={fadeInUp}
+                >
+                  <span style={{ fontSize: '4rem' }}>🛹</span>
+                  <h2 className="gradient-text">COSMIC SKATE</h2>
+                </motion.div>
+                
+                {['Home', 'Boards', 'Gear', 'Innovation', 'Contact'].map((item) => (
+                  <motion.a
+                    key={item}
+                    href={`#${item.toLowerCase() === 'home' ? 'hero' : item.toLowerCase()}`}
+                    className="mobile-nav-link"
+                    variants={fadeInUp}
+                    whileHover={{ scale: 1.05, x: 10 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item}
+                  </motion.a>
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
 
       {/* Hero Section */}
       <section id="hero" className="hero-section">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span className="badge-text">Crafting Excellence Since 2004</span>
-          </div>
+        <motion.div 
+          className="hero-content"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <motion.div 
+            className="hero-badge"
+            variants={scaleIn}
+          >
+            <span className="badge-text">🚀 Skateboarding Since 1995</span>
+          </motion.div>
           
-          <h1 className="hero-title">
-            <span className="title-line">GALAXY</span>
-            <span className="title-line gradient-text">Guitar Products USA</span>
-          </h1>
+          <motion.h1 
+            className="hero-title"
+            variants={fadeInUp}
+          >
+            <span className="title-line">COSMIC</span>
+            <span className="title-line gradient-text">SKATE SHOP</span>
+          </motion.h1>
           
-          <p className="hero-subtitle">
-            The global leader in professional guitar finger protectors and custom instruments.
-            Trusted by thousands of musicians worldwide.
-          </p>
+          <motion.p 
+            className="hero-subtitle"
+            variants={fadeInUp}
+          >
+            Premium skateboards, decks, and gear for riders who push boundaries.
+            Ride with the cosmos, skate beyond limits.
+          </motion.p>
           
-          <div className="hero-buttons">
-            <a href="#guitars" className="chrome-button primary large">
-              <span className="button-text">Shop Guitars</span>
+          <motion.div 
+            className="hero-buttons"
+            variants={fadeInUp}
+          >
+            <motion.a 
+              href="#boards" 
+              className="chrome-button primary large"
+              whileHover={{ scale: 1.05, boxShadow: "0 10px 40px rgba(0, 212, 255, 0.5)" }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="button-text">Shop Boards</span>
               <div className="button-shine"></div>
-            </a>
-            <a href="#prosthetics" className="chrome-button secondary large">
-              <span className="button-text">Finger Protectors</span>
+            </motion.a>
+            <motion.a 
+              href="#gear" 
+              className="chrome-button secondary large"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="button-text">View Gear</span>
               <div className="button-shine"></div>
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
-          <div className="hero-stats">
-            <div className="stat-item">
-              <div className="stat-number">29+</div>
-              <div className="stat-label">Years Experience</div>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <div className="stat-number">1000s</div>
-              <div className="stat-label">Musicians Helped</div>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <div className="stat-number">100%</div>
-              <div className="stat-label">USA Made</div>
-            </div>
-          </div>
-        </div>
+          <motion.div 
+            className="hero-stats"
+            variants={staggerContainer}
+          >
+            {[
+              { number: '30+', label: 'Years Experience' },
+              { number: '5000+', label: 'Happy Skaters' },
+              { number: '100%', label: 'Street Tested' }
+            ].map((stat, index) => (
+              <motion.div 
+                key={index}
+                variants={scaleIn}
+                whileHover={{ scale: 1.1, y: -5 }}
+              >
+                <div className="stat-item">
+                  <div className="stat-number">{stat.number}</div>
+                  <div className="stat-label">{stat.label}</div>
+                </div>
+                {index < 2 && <div className="stat-divider"></div>}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
 
-        <div className="scroll-indicator">
-          <div className="scroll-mouse">
-            <div className="scroll-wheel"></div>
-          </div>
-          <span className="scroll-text">Scroll to explore</span>
-        </div>
+        <motion.div 
+          className="floating-board"
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 5, 0, -5, 0]
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <span style={{ fontSize: '8rem', filter: 'drop-shadow(0 0 30px rgba(0, 212, 255, 0.6))' }}>🛹</span>
+        </motion.div>
       </section>
 
-      {/* Guitars Section */}
-      <section id="guitars" className="guitars-section">
-        <div className="section-header">
-          <span className="section-tag">Premium Instruments</span>
+      {/* Boards Section */}
+      <motion.section 
+        id="boards" 
+        className="guitars-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <motion.div variants={fadeInUp}>
+          <span className="section-tag">Premium Collection</span>
           <h2 className="section-title">
-            Custom <span className="gradient-text">Guitars</span>
+            Epic <span className="gradient-text">Skateboards</span>
           </h2>
           <p className="section-description">
-            Handcrafted instruments built to your exact specifications. Each guitar is a work of art.
+            Hand-crafted decks designed for street, park, and vert skating.
+            Built for performance, styled for the cosmos.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="guitars-grid">
-          {/* TRB-3 Invader */}
-          <div className="guitar-card">
-            <div className="card-image-wrapper">
-              <img src="/trb.jpg" alt="TRB-3 Galaxy Invader" className="card-image" />
-              <div className="card-overlay">
-                <button className="chrome-button card-button">
-                  <span className="button-text">View Details</span>
-                  <div className="button-shine"></div>
-                </button>
+        <motion.div 
+          className="guitars-grid"
+          variants={staggerContainer}
+        >
+          {[
+            {
+              name: 'Nebula Pro Deck',
+              description: 'Professional 8.25" deck with cosmic graphics. Perfect pop and control.',
+              price: '$89.99',
+              specs: ['8.25" Width', '31.5" Length', '7-Ply Maple', 'Medium Concave'],
+              emoji: '🌌'
+            },
+            {
+              name: 'Street Crusher',
+              description: 'Built for technical street skating. Durable and responsive.',
+              price: '$79.99',
+              specs: ['8.0" Width', '31" Length', 'Heavy Duty', 'Street Shape'],
+              emoji: '⚡'
+            },
+            {
+              name: 'Vert Master',
+              description: 'Wide deck for vert and bowl riding. Maximum stability.',
+              price: '$94.99',
+              specs: ['8.5" Width', '32" Length', 'Pool/Vert', 'Deep Concave'],
+              emoji: '🌊'
+            }
+          ].map((board, index) => (
+            <motion.div
+              key={index}
+              className="guitar-card"
+              variants={scaleIn}
+              whileHover={{ 
+                y: -15, 
+                scale: 1.02,
+                transition: { duration: 0.3 }
+              }}
+            >
+              <motion.div 
+                className="guitar-image-placeholder"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.8 }}
+              >
+                <span style={{ fontSize: '6rem' }}>{board.emoji}</span>
+              </motion.div>
+              
+              <div className="guitar-info">
+                <h3 className="guitar-name">{board.name}</h3>
+                <p className="guitar-description">{board.description}</p>
+                
+                <div className="guitar-specs">
+                  {board.specs.map((spec, i) => (
+                    <motion.span 
+                      key={i} 
+                      className="spec-badge"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      {spec}
+                    </motion.span>
+                  ))}
+                </div>
+                
+                <div className="guitar-footer">
+                  <span className="guitar-price">{board.price}</span>
+                  <motion.button 
+                    className="chrome-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="button-text">Add to Cart</span>
+                    <div className="button-shine"></div>
+                  </motion.button>
+                </div>
               </div>
-            </div>
-            <div className="card-content">
-              <div className="card-badge">Limited Edition</div>
-              <h3 className="card-title">TRB-3 Galaxy Invader</h3>
-              <p className="card-description">
-                Revolutionary aerospace-inspired design with custom F-17 Stinger pickups and advanced electronics.
-              </p>
-              <div className="card-specs">
-                <span className="spec-item">7-String</span>
-                <span className="spec-divider">•</span>
-                <span className="spec-item">Custom Shop</span>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.section>
 
-          {/* Trans Starr F-24 */}
-          <div className="guitar-card featured">
-            <div className="featured-badge">Most Popular</div>
-            <div className="card-image-wrapper">
-              <img src="/guitar1.jpg" alt="Galaxy Trans Starr F-24" className="card-image" />
-              <div className="card-overlay">
-                <button className="chrome-button card-button">
-                  <span className="button-text">View Details</span>
-                  <div className="button-shine"></div>
-                </button>
-              </div>
-            </div>
-            <div className="card-content">
-              <div className="card-badge premium">Premium</div>
-              <h3 className="card-title">Galaxy Trans Starr F-24</h3>
-              <p className="card-description">
-                Our flagship model with sublime playability and stunning sunburst finish.
-              </p>
-              <div className="card-specs">
-                <span className="spec-item">F-24 Series</span>
-                <span className="spec-divider">•</span>
-                <span className="spec-item">Pro Grade</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Custom Build */}
-          <div className="guitar-card">
-            <div className="card-image-wrapper">
-              <img src="/guitar_4.jpg" alt="Custom Galaxy Guitar" className="card-image" />
-              <div className="card-overlay">
-                <button className="chrome-button card-button">
-                  <span className="button-text">View Details</span>
-                  <div className="button-shine"></div>
-                </button>
-              </div>
-            </div>
-            <div className="card-content">
-              <div className="card-badge">Bespoke</div>
-              <h3 className="card-title">Custom Build Series</h3>
-              <p className="card-description">
-                Design your dream instrument with our master craftsmen. Your vision, our expertise.
-              </p>
-              <div className="card-specs">
-                <span className="spec-item">Your Specs</span>
-                <span className="spec-divider">•</span>
-                <span className="spec-item">Handcrafted</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Guitar Gallery */}
-        <div className="guitar-gallery">
-          <h3 className="gallery-title">Our Craftsmanship</h3>
-          <div className="gallery-grid">
-            <div className="gallery-item">
-              <img src="/gal1.jpg" alt="Galaxy Guitar Detail" className="gallery-image" />
-            </div>
-            <div className="gallery-item">
-              <img src="/gal2.jpg" alt="Galaxy Guitar Headstock" className="gallery-image" />
-            </div>
-            <div className="gallery-item">
-              <img src="/gal3.jpg" alt="Galaxy TRB-3 Invader" className="gallery-image" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Prosthetics Section */}
-      <section id="prosthetics" className="prosthetics-section">
-        <div className="section-header">
-          <span className="section-tag">Professional Solutions</span>
-          <h2 className="section-title">
-            Guitar Finger <span className="gradient-text">Protectors</span>
+      {/* Gear Section */}
+      <motion.section 
+        id="gear" 
+        className="prosthetics-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <motion.div className="prosthetics-hero" variants={fadeInUp}>
+          <motion.div 
+            className="prosthetics-icon"
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            <span style={{ fontSize: '5rem' }}>⚙️</span>
+          </motion.div>
+          <h2 className="prosthetics-headline">
+            Essential <span className="gradient-text">Skate Gear</span>
           </h2>
-          <p className="section-description">
-            The #1 finger protectors and extensions on planet Earth. Created by Rock Guitarist Randy Young.
+          <p className="prosthetics-description">
+            Premium trucks, wheels, bearings, and protective gear.
+            Everything you need to ride like a pro.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="prosthetics-hero">
-          <div className="prosthetics-content">
-            <h3 className="prosthetics-headline">Do You Have A Finger Injury?</h3>
-            <p className="prosthetics-subheadline">Your Search Is Over.</p>
-            
-            <div className="prosthetics-benefits">
-              <div className="benefit-item">
-                <div className="benefit-icon">✓</div>
-                <div className="benefit-text">
-                  <h4>Professional Protection</h4>
-                  <p>Ultra-Flex cores provide superior pain and pressure barrier</p>
-                </div>
+        <motion.div 
+          className="products-grid"
+          variants={staggerContainer}
+        >
+          {[
+            {
+              name: 'Pro Trucks',
+              description: 'Lightweight aluminum trucks with smooth turning.',
+              features: ['139mm-149mm', 'Hollow Kingpin', 'High/Low Options'],
+              price: '$54.99',
+              emoji: '🔩'
+            },
+            {
+              name: 'Street Wheels',
+              description: 'Durable urethane wheels for street and park.',
+              features: ['52-54mm', '99A-101A', 'Various Colors'],
+              price: '$34.99',
+              emoji: '⭕'
+            },
+            {
+              name: 'Speed Bearings',
+              description: 'ABEC-9 precision bearings for maximum speed.',
+              features: ['ABEC-9', 'Steel Shields', '8-Pack'],
+              price: '$29.99',
+              emoji: '💨'
+            },
+            {
+              name: 'Safety Gear',
+              description: 'Complete protection set for safe riding.',
+              features: ['Helmet', 'Knee Pads', 'Elbow Pads'],
+              price: '$79.99',
+              emoji: '🛡️'
+            }
+          ].map((gear, index) => (
+            <motion.div
+              key={index}
+              className="product-card"
+              variants={scaleIn}
+              whileHover={{ 
+                y: -10,
+                boxShadow: "0 20px 60px rgba(123, 104, 238, 0.4)"
+              }}
+            >
+              <motion.div 
+                className="product-icon"
+                whileHover={{ scale: 1.2, rotate: 15 }}
+              >
+                <span style={{ fontSize: '4rem' }}>{gear.emoji}</span>
+              </motion.div>
+              <h3 className="product-name">{gear.name}</h3>
+              <p className="product-description">{gear.description}</p>
+              <ul className="product-features">
+                {gear.features.map((feature, i) => (
+                  <motion.li 
+                    key={i}
+                    whileHover={{ x: 5, color: '#00d4ff' }}
+                  >
+                    {feature}
+                  </motion.li>
+                ))}
+              </ul>
+              <div className="product-footer">
+                <span className="product-price">{gear.price}</span>
+                <motion.button 
+                  className="chrome-button product-cta"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="button-text">Buy Now</span>
+                  <div className="button-shine"></div>
+                </motion.button>
               </div>
-              <div className="benefit-item">
-                <div className="benefit-icon">✓</div>
-                <div className="benefit-text">
-                  <h4>Custom Fit</h4>
-                  <p>7 diameter sizes available - from 1/2" to 1" interior</p>
-                </div>
-              </div>
-              <div className="benefit-item">
-                <div className="benefit-icon">✓</div>
-                <div className="benefit-text">
-                  <h4>Built To Last</h4>
-                  <p>Won't tear, rip, dry-out or crack. Made in USA to last years</p>
-                </div>
-              </div>
-              <div className="benefit-item">
-                <div className="benefit-icon">✓</div>
-                <div className="benefit-text">
-                  <h4>Free USA Shipping</h4>
-                  <p>Same-day shipping on standard orders. FedEx Express available</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="products-grid">
-          {/* FT-1 Standard */}
-          <div className="product-card">
-            <div className="product-image-wrapper">
-              <img src="/pros1.jpg" alt="FT-1 Finger Protector" className="product-image" />
-            </div>
-            <div className="product-content">
-              <div className="product-badge">Best Seller</div>
-              <h3 className="product-title">FT-1 Finger Protector</h3>
-              <p className="product-description">
-                Professional protection for guitarists, bass players, and all musicians. 
-                7/8" length with 1/16" thick Ultra-Flex core.
-              </p>
-              <div className="product-features">
-                <span className="feature">✓ Normal: 5/8" diameter</span>
-                <span className="feature">✓ Large: 3/4" diameter</span>
-                <span className="feature">✓ Custom sizes available</span>
-              </div>
-              <div className="product-pricing">
-                <span className="price-label">Ready to Ship</span>
-              </div>
-              <button className="chrome-button product-cta">
-                <span className="button-text">Buy Now</span>
-                <div className="button-shine"></div>
-              </button>
-            </div>
-          </div>
-
-          {/* FT-1 XL */}
-          <div className="product-card featured">
-            <div className="featured-badge">Extended Length</div>
-            <div className="product-image-wrapper">
-              <img src="/pros4.jpg" alt="FT-1 XL Finger Extension" className="product-image" />
-            </div>
-            <div className="product-content">
-              <div className="product-badge premium">FT-1 XL</div>
-              <h3 className="product-title">FT-1 XL Extension</h3>
-              <p className="product-description">
-                Longer 1.5" extension for missing finger tips. Custom built for your exact needs.
-              </p>
-              <div className="product-features">
-                <span className="feature">✓ 1.5" extended length</span>
-                <span className="feature">✓ All custom diameters</span>
-                <span className="feature">✓ Ships in 5-7 days</span>
-              </div>
-              <div className="product-pricing">
-                <span className="price-label">Custom Order</span>
-              </div>
-              <button className="chrome-button product-cta">
-                <span className="button-text">Custom Order</span>
-                <div className="button-shine"></div>
-              </button>
-            </div>
-          </div>
-
-          {/* FT-2 */}
-          <div className="product-card">
-            <div className="product-image-wrapper">
-              <img src="/pros3process.jpg" alt="FT-2 Finger Extension" className="product-image" />
-            </div>
-            <div className="product-content">
-              <div className="product-badge">Professional</div>
-              <h3 className="product-title">FT-2 Extension</h3>
-              <p className="product-description">
-                Maximum length extension for severe injuries. Full custom fabrication.
-              </p>
-              <div className="product-features">
-                <span className="feature">✓ Longest extension</span>
-                <span className="feature">✓ Custom engineered</span>
-                <span className="feature">✓ VIP tech support</span>
-              </div>
-              <div className="product-pricing">
-                <span className="price-label">Custom Order</span>
-              </div>
-              <button className="chrome-button product-cta">
-                <span className="button-text">Custom Order</span>
-                <div className="button-shine"></div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="prosthetics-info">
-          <div className="info-card">
-            <h4 className="info-title">Who Uses Our Protectors?</h4>
-            <ul className="info-list">
-              <li>Guitarists & Bass Players</li>
-              <li>Violinists, Cellists, Viola Players</li>
-              <li>Mandolin, Banjo, Ukulele Players</li>
-              <li>Horn Players (Sax, Clarinet)</li>
-              <li>Keyboard Players</li>
-              <li>Non-Musicians with Finger Injuries</li>
-              <li>Gamers (Speed Advantage)</li>
-            </ul>
-          </div>
-
-          <div className="info-card">
-            <h4 className="info-title">Available Sizes</h4>
-            <ul className="info-list">
-              <li>Small: 1/2", 9/16"</li>
-              <li>Normal: 5/8" (Ready to Ship)</li>
-              <li>Medium: 11/16"</li>
-              <li>Large: 3/4" (Ready to Ship)</li>
-              <li>Extra Large: 7/8"</li>
-              <li>Largest: 1"</li>
-            </ul>
-          </div>
-
-          <div className="info-card">
-            <h4 className="info-title">Custom Options</h4>
-            <ul className="info-list">
-              <li>FT-1 Ultra (1.8" length)</li>
-              <li>Ultra-Thin Option (Free)</li>
-              <li>Stealth Force Graphics</li>
-              <li>Custom Colors Available</li>
-              <li>Flame & Stripe Designs</li>
-              <li>Expert Tech Support Included</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="section-cta">
-          <h3 className="cta-title">Ready to Play Again?</h3>
-          <p className="cta-description">
-            29 years of experience helping musicians overcome finger challenges. 
-            Free ground shipping in USA. International orders ship daily via FedEx.
-          </p>
-          <button className="chrome-button large">
-            <span className="button-text">Contact Us For Expert Guidance</span>
-            <div className="button-shine"></div>
-          </button>
-        </div>
-      </section>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.section>
 
       {/* Innovation Section */}
-      <section id="innovation" className="innovation-section">
+      <motion.section 
+        id="innovation" 
+        className="innovation-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
         <div className="innovation-grid">
-          <div className="innovation-content">
-            <span className="section-tag">Technology Meets Tradition</span>
+          <motion.div 
+            className="innovation-content"
+            variants={fadeInUp}
+          >
+            <span className="section-tag">Performance Meets Style</span>
             <h2 className="section-title">
-              Breakthrough <span className="gradient-text">Innovation</span>
+              Next-Gen <span className="gradient-text">Innovation</span>
             </h2>
             <p className="innovation-text">
-              Our patented FT-1 technology represents 29 years of refinement. Unlike cheap 
-              silicone or rubber alternatives, our Ultra-Flex cores provide a true professional 
-              solution for serious musicians.
+              We use cutting-edge materials and construction techniques to create
+              boards that perform at the highest level. Every deck is tested by
+              professional riders before it reaches your hands.
             </p>
             
-            <div className="features-list">
-              <div className="feature-item">
-                <div className="feature-icon">
-                  <div className="icon-circle"></div>
-                </div>
-                <div className="feature-content">
-                  <h4 className="feature-title">Patented Design</h4>
-                  <p className="feature-description">
-                    1/16" thick Ultra-Flex core creates optimal pain and pressure barrier.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="feature-item">
-                <div className="feature-icon">
-                  <div className="icon-circle"></div>
-                </div>
-                <div className="feature-content">
-                  <h4 className="feature-title">Precision Crafted</h4>
-                  <p className="feature-description">
-                    Hand-made in America with materials that won't tear, crack, or dry out.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="feature-item">
-                <div className="feature-icon">
-                  <div className="icon-circle"></div>
-                </div>
-                <div className="feature-content">
-                  <h4 className="feature-title">Expert Support</h4>
-                  <p className="feature-description">
-                    Relentless technical support before and after your purchase.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <motion.div 
+              className="features-list"
+              variants={staggerContainer}
+            >
+              {[
+                {
+                  title: '7-Ply Maple',
+                  description: 'Premium Canadian maple for ultimate strength and pop.'
+                },
+                {
+                  title: 'Heat Transfer Graphics',
+                  description: 'Vibrant designs that won\'t fade or peel off.'
+                },
+                {
+                  title: 'Pro Tested',
+                  description: 'Every board tested by sponsored team riders.'
+                }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className="feature-item"
+                  variants={scaleIn}
+                  whileHover={{ x: 10 }}
+                >
+                  <motion.div 
+                    className="feature-icon"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <div className="icon-circle"></div>
+                  </motion.div>
+                  <div className="feature-content">
+                    <h4 className="feature-title">{feature.title}</h4>
+                    <p className="feature-description">{feature.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
 
-            <button className="chrome-button">
+            <motion.button 
+              className="chrome-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <span className="button-text">Learn More</span>
               <div className="button-shine"></div>
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
 
-          <div className="innovation-showcase">
-            <div className="showcase-image-container">
-              <img src="/galaxy_guitar.jpg" alt="Galaxy FT-1 XL Innovation" className="showcase-image" />
-            </div>
-            <div className="showcase-stats">
-              <div className="stat-box">
-                <div className="stat-number">29</div>
-                <div className="stat-label">Years Experience</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-number">7</div>
-                <div className="stat-label">Size Options</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-number">100%</div>
-                <div className="stat-label">USA Made</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-number">1000s</div>
-                <div className="stat-label">Musicians Helped</div>
-              </div>
-            </div>
-          </div>
+          <motion.div 
+            className="innovation-showcase"
+            variants={fadeInUp}
+          >
+            <motion.div 
+              className="showcase-image-container"
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.span 
+                style={{ 
+                  fontSize: '15rem', 
+                  display: 'block',
+                  filter: 'drop-shadow(0 0 50px rgba(0, 212, 255, 0.6))'
+                }}
+                animate={{
+                  rotate: [0, 360]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                🛹
+              </motion.span>
+            </motion.div>
+            <motion.div 
+              className="showcase-stats"
+              variants={staggerContainer}
+            >
+              {[
+                { number: '30', label: 'Years Experience' },
+                { number: '100+', label: 'Board Designs' },
+                { number: '100%', label: 'Quality Wood' },
+                { number: '5000+', label: 'Happy Riders' }
+              ].map((stat, index) => (
+                <motion.div 
+                  key={index}
+                  className="stat-box"
+                  variants={scaleIn}
+                  whileHover={{ 
+                    scale: 1.1, 
+                    rotate: 5,
+                    boxShadow: "0 15px 40px rgba(123, 104, 238, 0.5)"
+                  }}
+                >
+                  <div className="stat-number">{stat.number}</div>
+                  <div className="stat-label">{stat.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Contact Section */}
-      <section id="contact" className="contact-section">
+      <motion.section 
+        id="contact" 
+        className="contact-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
         <div className="contact-content">
-          <span className="section-tag">Get In Touch</span>
-          <h2 className="section-title">
+          <motion.span 
+            className="section-tag"
+            variants={fadeInUp}
+          >
+            Get In Touch
+          </motion.span>
+          <motion.h2 
+            className="section-title"
+            variants={fadeInUp}
+          >
             Start Your <span className="gradient-text">Journey</span>
-          </h2>
-          <p className="section-description">
-            Whether you need a custom guitar or finger protector, our expert team is here 
-            to guide you through every step of the process.
-          </p>
+          </motion.h2>
+          <motion.p 
+            className="section-description"
+            variants={fadeInUp}
+          >
+            Whether you're a beginner or pro, we're here to help you find
+            the perfect setup and elevate your skating game.
+          </motion.p>
           
-          <div className="contact-methods">
-            <div className="contact-card">
-              <div className="contact-icon">📧</div>
-              <h4 className="contact-title">Email Us</h4>
-              <p className="contact-detail">info@galaxyguitar.com</p>
-            </div>
-            
-            <div className="contact-card">
-              <div className="contact-icon">🌐</div>
-              <h4 className="contact-title">Visit Website</h4>
-              <p className="contact-detail">galaxyguitar.com</p>
-            </div>
-            
-            <div className="contact-card">
-              <div className="contact-icon">📦</div>
-              <h4 className="contact-title">Fast Shipping</h4>
-              <p className="contact-detail">Free USA Ground Shipping</p>
-            </div>
-          </div>
+          <motion.div 
+            className="contact-methods"
+            variants={staggerContainer}
+          >
+            {[
+              { icon: '📧', title: 'Email Us', detail: 'shop@cosmicskate.com' },
+              { icon: '🌐', title: 'Visit Website', detail: 'cosmicskate.com' },
+              { icon: '📦', title: 'Fast Shipping', detail: 'Free Shipping Over $50' }
+            ].map((method, index) => (
+              <motion.div
+                key={index}
+                className="contact-card"
+                variants={scaleIn}
+                whileHover={{ 
+                  y: -10,
+                  scale: 1.05,
+                  boxShadow: "0 20px 60px rgba(123, 104, 238, 0.5)"
+                }}
+              >
+                <motion.div 
+                  className="contact-icon"
+                  animate={{ 
+                    rotate: [0, 10, -10, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: index * 0.3
+                  }}
+                >
+                  {method.icon}
+                </motion.div>
+                <h4 className="contact-title">{method.title}</h4>
+                <p className="contact-detail">{method.detail}</p>
+              </motion.div>
+            ))}
+          </motion.div>
 
-          <button className="chrome-button large">
+          <motion.button 
+            className="chrome-button large"
+            variants={fadeInUp}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <span className="button-text">Contact Us</span>
             <div className="button-shine"></div>
-          </button>
+          </motion.button>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
-      <footer className="footer">
+      <motion.footer 
+        className="footer"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
         <div className="footer-content">
           <div className="footer-logo">
-            <img src="/logo.png" alt="Galaxy Guitar Products USA" style={{ height: '50px', marginBottom: '1rem' }} />
-            <p className="footer-tagline">Crafting Excellence Since 2004</p>
+            <motion.div
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.6 }}
+            >
+              <span style={{ fontSize: '3rem' }}>🛹</span>
+            </motion.div>
+            <div className="footer-brand">COSMIC SKATE</div>
+            <p className="footer-tagline">Skateboarding Since 1995</p>
           </div>
           
           <div className="footer-links">
             <div className="footer-column">
               <h5 className="footer-title">Products</h5>
-              <a href="#guitars" className="footer-link">Custom Guitars</a>
-              <a href="#prosthetics" className="footer-link">Finger Protectors</a>
-              <a href="#prosthetics" className="footer-link">FT-1 Extensions</a>
+              <a href="#boards" className="footer-link">Skateboards</a>
+              <a href="#gear" className="footer-link">Gear & Parts</a>
+              <a href="#gear" className="footer-link">Accessories</a>
             </div>
             
             <div className="footer-column">
               <h5 className="footer-title">Support</h5>
-              <a href="#" className="footer-link">Tech Support</a>
-              <a href="#" className="footer-link">Sizing Guide</a>
+              <a href="#" className="footer-link">Size Guide</a>
+              <a href="#" className="footer-link">Setup Tips</a>
               <a href="#contact" className="footer-link">Contact</a>
             </div>
             
             <div className="footer-column">
               <h5 className="footer-title">Company</h5>
               <a href="#innovation" className="footer-link">About Us</a>
-              <a href="#" className="footer-link">Testimonials</a>
-              <a href="#" className="footer-link">USA Made</a>
+              <a href="#" className="footer-link">Team Riders</a>
+              <a href="#" className="footer-link">Sustainability</a>
             </div>
           </div>
         </div>
         
         <div className="footer-bottom">
-          <p className="copyright">© 2024 Galaxy Guitar Products USA. All rights reserved.</p>
+          <p className="copyright">© 2024 Cosmic Skate Shop. All rights reserved. Template by Plexura</p>
         </div>
-      </footer>
+      </motion.footer>
     </div>
   );
 }
